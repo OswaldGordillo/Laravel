@@ -124,7 +124,10 @@ class AuthController extends Controller
         $request->only('email')
     );
 
-    return back()->with('estado', __($estado));
+    return back()->with(
+    'estado',
+    'Si el correo está registrado, recibirás un enlace para recuperar tu contraseña.'
+    );
     }
     public function mostrarFormularioRestablecerContraseña(Request $request, $token)
     {

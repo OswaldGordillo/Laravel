@@ -36,6 +36,10 @@
             <button type="submit">Entrar</button>
         </form>
 
+        <a href="{{ route('recuperacion.contraseña') }}">
+        ¿Olvidaste tu contraseña?
+        </a>
+
         <p>
             ¿No tienes cuenta?
             <a href="{{ route('registro') }}">Regístrate aquí</a>
