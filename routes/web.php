@@ -22,3 +22,16 @@ Route::post('/logout', [AuthController::class, 'cerrarSesion'])
 Route::get('/inicio', [AuthController::class, 'inicio'])
     ->middleware('auth')
     ->name('inicio');
+
+Route::get('/recuperar-contraseña', [AuthController::class, 'mostrarRecuperacionContraseña'])
+    ->name('recuperacion.contraseña');
+
+    Route::post('/recuperar-contraseña', [AuthController::class, 'enviarRecuperacionContraseña'])
+    ->name('enviarRecuperacion');
+
+    Route::get('/restablecer-contraseña/{token}', [AuthController::class, 'mostrarFormularioRestablecerContraseña'])
+    ->name('password.reset');
+
+    Route::post('/restablecer-contraseña', [AuthController::class, 'procesarRestablecimientoContraseña'])
+    ->name('password.update');
+

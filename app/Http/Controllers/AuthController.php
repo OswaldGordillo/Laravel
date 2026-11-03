@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 
 class AuthController extends Controller
 {
@@ -108,5 +109,50 @@ class AuthController extends Controller
     {
         return view('inicio');
     }
+
+    public function mostrarRecuperacionContraseña(){
+        return view('recuperar-contraseña');
+    }
+
+    public function enviarRecuperacionContraseña(Request $request)
+    {
+    $request->validate([
+        'email' => 'required|email'
+    ]);
+
+    $estado = Password::sendResetLink(
+        $request->only('email')
+    );
+
+    return back()->with('estado', __($estado));
+    }
+    public function mostrarFormularioRestablecerContraseña(Request $request, $token)
+    {
+    return view('restablecer-contraseña', [
+        'token' => $token,
+        'email' => $request->query('email')
+    ]);
+    }
+    
+    public function procesarRestablecimientoContraseña(Request $request)
+{
+    $request->validate([
+        'token' => 'required',
+        'email' => 'required|email',
+        'password' => 'required|min:8|confirmed'
+    ]);
+
+    $estado = Password::reset(
+        $request->only('email', 'password', 'password_confirmation', 'token'),
+        function ($usuario, $password) {
+            $usuario->password = Hash::make($password);
+            $usuario->save();
+        }
+    );
+
+    return $estado === Password::PASSWORD_RESET
+        ? redirect('/login')->with('estado', 'Contraseña actualizada correctamente.')
+        : back()->withErrors(['email' => 'No fue posible restablecer la contraseña.']);
+}
 }
 
