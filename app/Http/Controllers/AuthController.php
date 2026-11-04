@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\RateLimiter;
 
 class AuthController extends Controller
 {
@@ -78,11 +80,42 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
+        $clave = Str::transliterate(
+            Str::lower($request->input('email')).'|'.$request->ip()
+        );
+        $claveBloqueo = $clave . '|bloqueo';
+
+        if (RateLimiter::tooManyAttempts($claveBloqueo, 1)) {
+            $segundos = RateLimiter::availableIn($claveBloqueo);
+
+            return back()->withErrors([
+            'email' => "Demasiados intentos. Intenta nuevamente en {$segundos} segundos."
+            ])->onlyInput('email');
+        }
+
         // Comprobar las credenciales
         if (Auth::attempt($credenciales)) {
+            RateLimiter::clear($clave);
+            RateLimiter::clear($claveBloqueo);
             $request->session()->regenerate();
 
             return redirect()->intended(route('inicio'));
+            
+        }
+        
+
+        RateLimiter::hit($clave, 60);
+
+        if (RateLimiter::tooManyAttempts($clave, 5)) {
+            RateLimiter::clear($clave);
+
+            RateLimiter::hit($claveBloqueo, 60);
+
+            $segundos = RateLimiter::availableIn($claveBloqueo);
+
+            return back()->withErrors([
+            'email' => "Demasiados intentos. Intenta nuevamente en {$segundos} segundos."
+        ])->onlyInput('email');
         }
 
         // Mostrar un mensaje genérico si los datos son incorrectos
