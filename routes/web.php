@@ -35,3 +35,6 @@ Route::get('/recuperar-contraseña', [AuthController::class, 'mostrarRecuperacio
     Route::post('/restablecer-contraseña', [AuthController::class, 'procesarRestablecimientoContraseña'])
     ->name('password.update');
 
+    Route::get('/planificador', function () {
+    return view('planificador');
+    })->middleware('auth')->name('planificador');

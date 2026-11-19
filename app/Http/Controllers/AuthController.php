@@ -56,7 +56,7 @@ class AuthController extends Controller
         // Iniciar sesión automáticamente
         Auth::login($usuario);
 
-        return redirect()->route('inicio')
+        return redirect()->route('planificador')
             ->with('success', '¡Registro exitoso!');
     }
 
@@ -99,7 +99,7 @@ class AuthController extends Controller
             RateLimiter::clear($claveBloqueo);
             $request->session()->regenerate();
 
-            return redirect()->intended(route('inicio'));
+            return redirect()->intended(route('planificador'));
             
         }
         
