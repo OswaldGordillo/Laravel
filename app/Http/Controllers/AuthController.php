@@ -55,6 +55,7 @@ class AuthController extends Controller
 
         // Iniciar sesión automáticamente
         Auth::login($usuario);
+        $request->session()->regenerate();
 
         return redirect()->route('planificador')
             ->with('success', '¡Registro exitoso!');
@@ -134,10 +135,11 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login');
+        return redirect()->route('inicio')
+            ->with('success', 'Sesión cerrada correctamente.');
     }
 
-    // Página privada después de iniciar sesión
+    // Página de inicio (pública)
     public function inicio()
     {
         return view('inicio');
